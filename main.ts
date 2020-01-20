@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 
@@ -53,28 +53,50 @@ function createWindow(): BrowserWindow {
 
 try {
 
-  // This method will be called when Electron has finished
-  // initialization and is ready to create browser windows.
-  // Some APIs can only be used after this event occurs.
-  app.on('ready', createWindow);
+    //
+    // Using send()/on() for bidirectional communication with the renderer
+    // process.
+    //
+    // ipcMain.on("openFolder", (event, path) => {
+    //     console.log("Received openFolder event.");
+    //     dialog.showOpenDialog(win, { properties: ["openDirectory"] })
+    //     .then((openResult) => {
+    //         event.sender.send("folderData", openResult.filePaths);
+    //     });
+    // });
 
-  // Quit when all windows are closed.
-  app.on('window-all-closed', () => {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
 
-  app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (win === null) {
-      createWindow();
-    }
-  });
+    //
+    // Using invoke()/handle() for IPC.
+    //
+    ipcMain.handle("openFolder", async (event, arg) => {
+        return dialog.showOpenDialog(win, {properties: ["openDirectory"]})
+        .then((openResult) => {
+            return openResult.filePaths;
+        });
+    });
 
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+    app.on('ready', createWindow);
+
+    // Quit when all windows are closed.
+    app.on('window-all-closed', () => {
+        // On OS X it is common for applications and their menu bar
+        // to stay active until the user quits explicitly with Cmd + Q
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
+    });
+
+    app.on('activate', () => {
+        // On OS X it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (win === null) {
+            createWindow();
+        }
+    });
 } catch (e) {
   // Catch Error
   // throw e;

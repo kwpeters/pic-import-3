@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Directory} from "../depot/directory"
-
+import {ipcRenderer} from "electron";
 
 @Component({
     selector: 'app-home',
@@ -23,6 +23,28 @@ export class HomeComponent implements OnInit
 
     }
 
-    ngOnInit(): void { }
+
+    ngOnInit(): void {
+    }
+
+
+    public onChooseDirectoryA(): void
+    {
+        console.log("Got the click event!!!");
+
+        // ipcRenderer.send("openFolder", () => {
+        //     console.log("openFolder event sent.");
+        // });
+        //
+        // ipcRenderer.once("folderData", (event, data) => {
+        //     console.log("data:", data);
+        // });
+
+        ipcRenderer.invoke("openFolder", "foo")
+        .then((filePaths) => {
+            console.log("filePaths:", filePaths);
+        });
+    }
+
 
 }
