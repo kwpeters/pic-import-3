@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Directory} from "../depot/directory"
-import {ipcRenderer} from "electron";
+import { ElectronService } from '../core/services';
 
 @Component({
     selector: 'app-home',
@@ -9,9 +9,12 @@ import {ipcRenderer} from "electron";
 })
 export class HomeComponent implements OnInit
 {
+    private _electronService: ElectronService;
     public messagePromise: Promise<string>;
 
-    constructor() {
+    constructor(electronService: ElectronService) {
+
+        this._electronService = electronService;
 
         const tmpDirPath = "/Users/kwpeters/tmp";
         const tmpDir = new Directory(tmpDirPath);
@@ -40,7 +43,7 @@ export class HomeComponent implements OnInit
         //     console.log("data:", data);
         // });
 
-        ipcRenderer.invoke("openFolder", "foo")
+        this._electronService.ipcRenderer.invoke("openFolder", "foo")
         .then((filePaths) => {
             console.log("filePaths:", filePaths);
         });
